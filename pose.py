@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import List
 from dataclasses import dataclass
 import numpy as np
+import enum
 
 # Class for a single frame of pose data
 @dataclass
@@ -53,3 +54,12 @@ class Joint:
     # Division by scalar
     def __truediv__(self, scalar):
         return Joint(self.x / scalar, self.y / scalar, self.confidence)
+
+    @staticmethod
+    def vectorFromJoints(joint1: Joint, joint2: Joint) -> tuple:
+        return (joint2.x - joint1.x, joint2.y - joint1.y)
+
+
+class Side(enum.Enum):
+    left = "Left"
+    right = "Right"
