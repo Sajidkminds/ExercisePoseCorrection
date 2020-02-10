@@ -4,7 +4,7 @@ from pose import PoseData, Joint, Side
 from typing import List
 
 
-def parse_file(file_path: str) -> List[PoseData]:
+def parse_file(file_path: str, normalize: bool = True) -> List[PoseData]:
     frames = np.load(file=file_path)
     pose_sequence = []
     print("Data shape: ", frames.shape)
@@ -12,6 +12,14 @@ def parse_file(file_path: str) -> List[PoseData]:
     for frame in frames:
         joints = [Joint(*joint) for joint in frame]  # Unpack and pass x,y,conf
         pose_sequence.append(PoseData(*joints))  # Unpack and pass argument
+
+    if (normalize):
+        pose_sequence = normalize_pose(pose_sequence)
+
+    return pose_sequence
+
+
+def normalize_pose(pose_sequence: List[PoseData]) -> List[PoseData]:
 
     # Normalize pose
     torso_lengths = np.array([Joint.distance(pose.neck, pose.lhip)
@@ -25,7 +33,6 @@ def parse_file(file_path: str) -> List[PoseData]:
     for pose in pose_sequence:
         for attr, part in pose:
             setattr(pose, attr, part/mean_torso)
-
     return pose_sequence
 
 
