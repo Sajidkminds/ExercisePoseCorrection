@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 import numpy as np
 from pose import PoseData, Joint, Side
 from typing import List
