@@ -10,6 +10,9 @@ def parse_file(file_path: str, normalize: bool = True) -> List[PoseData]:
     print("Data shape: ", frames.shape)
     # Each frame consists of joint data
     for frame in frames:
+        if (frame.shape[0] == 18):
+            row = np.array([0,0,0])
+            frame = np.vstack((frame, row))
         joints = [Joint(*joint) for joint in frame]  # Unpack and pass x,y,conf
         pose_sequence.append(PoseData(*joints))  # Unpack and pass argument
 

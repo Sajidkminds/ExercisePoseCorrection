@@ -3,6 +3,7 @@ import cv2 as cv
 from pose_parser import parse_file
 import time
 import math
+import pose
 
 # Create a black image
 img = np.zeros((600, 1200, 3), np.uint8)
@@ -53,12 +54,33 @@ while(1):
     cv.putText(img, f"{current_type} {video_index}", (250, 20), cv.FONT_HERSHEY_PLAIN,
                1, (255, 255, 255), 1)
     frame = video[index]
+    
+
+
     for name, joint in frame:
         # print(joint.x)
         x = int(joint.x) - 200
         y = int(joint.y)
         cv.circle(img, (x, y), 5, (0, 0, 255), -1)
         cv.putText(img, name, (x, y-10), cv.FONT_HERSHEY_SIMPLEX,
+                   0.6, (36, 255, 12), 2)
+
+    rs_re = [frame.rshoulder, frame.relbow] 
+    re_rw = [frame.relbow, frame.rwrist]
+
+    lineThickness = 2
+    (x1, y1) = (int(rs_re[0].x)-200, int(rs_re[0].y))
+    (x2, y2) = (int(rs_re[1].x)-200, int(rs_re[1].y))
+    cv.line(img, (x1, y1), (x2, y2), (0,255,0), lineThickness)
+
+    (x1, y1) = (int(re_rw[0].x)-200, int(re_rw[0].y))
+    (x2, y2) = (int(re_rw[1].x)-200, int(re_rw[1].y))
+    cv.line(img, (x1, y1), (x2, y2), (0,255,0), lineThickness)
+
+    vec1 = pose.Part(frame.rshoulder, frame.relbow)
+    vec2 = pose.Part(frame.rwrist, frame.relbow)
+    angle = vec1.calculate_angle(vec2)
+    cv.putText(img, str(angle), (10, 40), cv.FONT_HERSHEY_SIMPLEX,
                    0.6, (36, 255, 12), 2)
 
     time.sleep(0.08)

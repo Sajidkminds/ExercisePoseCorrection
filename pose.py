@@ -1,4 +1,4 @@
-# from __future__ import annotations
+from __future__ import annotations
 from typing import List
 from dataclasses import dataclass
 import numpy as np
@@ -25,6 +25,7 @@ class PoseData:
     leye: Joint
     rear: Joint
     lear: Joint
+    mhip: Joint
     # JOINT_NAMES = ['nose', 'neck',  'rshoulder', 'relbow', 'rwrist', 'lshoulder', 'lelbow',
     #    'lwrist', 'rhip', 'rknee', 'rankle', 'lhip', 'lknee', 'lankle', 'reye', 'leye', 'rear', 'lear']
 
@@ -63,7 +64,7 @@ class Part():
 
     def get_vector(self):
         return (self.joint2.x - self.joint1.x, self.joint2.y - self.joint1.y)
-
+    
     def calculate_angle(self, part: Part) -> float:
         vec1 = np.array(self.get_vector())
         vec2 = np.array(part.get_vector())
