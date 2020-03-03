@@ -12,7 +12,7 @@ img = np.zeros((600, 1200, 3), np.uint8)
 # cv.circle(img, (447, 63), 63, (0, 0, 255), -1)
 NO_OF_GOOD = 6
 NO_OF_BAD = 10
-EXERCISE_NAME = "bicep"
+EXERCISE_NAME = "frontraise"
 good_videos = [parse_file(f"dataset/{EXERCISE_NAME}/{EXERCISE_NAME}_good_" +
                           str(i) + ".npy", False) for i in range(1, NO_OF_GOOD+1)]
 bad_videos = [parse_file(f"dataset/{EXERCISE_NAME}/{EXERCISE_NAME}_bad_" + str(i) + ".npy", False)
