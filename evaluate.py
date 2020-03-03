@@ -51,9 +51,9 @@ def evaluate_bicepcurl(frames: List[pose.PoseData]):
 
 if __name__ == "__main__":
     good_videos = [parse_file(
-        "dataset/bicep/bicep_good_" + str(i) + ".npy") for i in range(1, 7)]
+        "dataset/bicep/bicep_good_" + str(i) + ".npy") for i in range(1, 10)]
     bad_videos = [parse_file(
-        "dataset/bicep/bicep_bad_" + str(i) + ".npy") for i in range(1, 11)]
+        "dataset/bicep/bicep_bad_" + str(i) + ".npy") for i in range(1, 8)]
     print('*'*50)
     print('*'*50)
     print('Good videos')

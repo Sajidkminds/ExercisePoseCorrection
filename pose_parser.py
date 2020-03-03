@@ -19,6 +19,17 @@ def parse_file(file_path: str, normalize: bool = True) -> List[PoseData]:
     return pose_sequence
 
 
+def save_to_file(file_path: str, pose_sequence: List[PoseData]):
+    sequence_arr = []
+    for frame in pose_sequence:
+        frame_arr = []
+        for name, joint in frame:
+            frame_arr.append([joint.x, joint.y, joint.confidence])
+        sequence_arr.append(frame_arr)
+    sequence_arr = np.array(sequence_arr)
+    np.save(file_path, sequence_arr)
+
+
 def normalize_pose(pose_sequence: List[PoseData]) -> List[PoseData]:
 
     # Normalize pose

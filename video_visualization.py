@@ -10,9 +10,9 @@ img = np.zeros((600, 1200, 3), np.uint8)
 # Draw a diagonal blue line with thickness of 5 px
 # cv.line(img, (0, 0), (511, 511), (255, 0, 0), 5)
 # cv.circle(img, (447, 63), 63, (0, 0, 255), -1)
-NO_OF_GOOD = 6
-NO_OF_BAD = 10
-EXERCISE_NAME = "frontraise"
+NO_OF_GOOD = 9
+NO_OF_BAD = 7
+EXERCISE_NAME = "bicep"
 good_videos = [parse_file(f"dataset/{EXERCISE_NAME}/{EXERCISE_NAME}_good_" +
                           str(i) + ".npy", False) for i in range(1, NO_OF_GOOD+1)]
 bad_videos = [parse_file(f"dataset/{EXERCISE_NAME}/{EXERCISE_NAME}_bad_" + str(i) + ".npy", False)
@@ -90,7 +90,9 @@ while(1):
                1, (255, 255, 255), 1)
     cv.putText(img, f"Angle upperarm forearm: {angle1}", (10, 50), cv.FONT_HERSHEY_PLAIN,
                1, (255, 255, 255), 1)
-    cv.putText(img, f"Reps: {reps}", (10, 80),
+    cv.putText(img, f"Angle upperarm torso: {angle2}", (10, 80), cv.FONT_HERSHEY_PLAIN,
+               1, (255, 255, 255), 1)
+    cv.putText(img, f"Reps: {reps}", (10, 110),
                cv.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
 
     for name, joint in frame:
