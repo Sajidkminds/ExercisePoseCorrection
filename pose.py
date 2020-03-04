@@ -103,6 +103,30 @@ class Side(enum.Enum):
     left = "Left"
     right = "Right"
 
+# Helper function to generate part from pose data
+
+
+def generate_parts(frame: PoseData, side: Side):
+    parts = []
+    parts.append(Part(frame.nose, frame.neck))
+
+    # Left side
+    if side == Side.left:
+        parts.append(Part(frame.neck, frame.lshoulder))
+        parts.append(Part(frame.lshoulder, frame.lelbow))
+        parts.append(Part(frame.lelbow, frame.lwrist))
+        #parts.append(Part(frame.lhip, frame.lknee))
+        #parts.append(Part(frame.lknee, frame.lankle))
+    # Right side
+    elif side == Side.right:
+        parts.append(Part(frame.neck, frame.rshoulder))
+        parts.append(Part(frame.rshoulder, frame.relbow))
+        parts.append(Part(frame.relbow, frame.rwrist))
+        #parts.append(Part(frame.rhip, frame.rknee))
+        #parts.append(Part(frame.rknee, frame.rankle))
+
+    return parts
+
 
 # if __name__ == '__main__':
 #     a = PoseData(Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(

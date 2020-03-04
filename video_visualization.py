@@ -13,9 +13,9 @@ img = np.zeros((600, 1200, 3), np.uint8)
 NO_OF_GOOD = 9
 NO_OF_BAD = 7
 EXERCISE_NAME = "bicep"
-good_videos = [parse_file(f"dataset/{EXERCISE_NAME}/{EXERCISE_NAME}_good_" +
+good_videos = [parse_file(f"synthesized/{EXERCISE_NAME}/{EXERCISE_NAME}_good_" +
                           str(i) + ".npy", False) for i in range(1, NO_OF_GOOD+1)]
-bad_videos = [parse_file(f"dataset/{EXERCISE_NAME}/{EXERCISE_NAME}_bad_" + str(i) + ".npy", False)
+bad_videos = [parse_file(f"synthesized/{EXERCISE_NAME}/{EXERCISE_NAME}_bad_" + str(i) + ".npy", False)
               for i in range(1, NO_OF_BAD+1)]
 
 is_video_good = True

@@ -62,7 +62,7 @@ def visualize_vid(path):
 
 
 if __name__ == '__main__':
-    path = "synthesized/bicep/bicep_good_100.npy"
+    path = "synthesized/bicep/bicep_good_189.npy"
     # path = "datset/bicep/bicep_good_1.npy"
     # path = "datset/bicep/bicep_bad_1.npy"
     visualize_vid(path)
