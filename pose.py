@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 from typing import List
 from dataclasses import dataclass
 import numpy as np
@@ -7,24 +7,24 @@ import enum
 # Class for a single frame of pose data
 @dataclass
 class PoseData:
-    nose: Joint
-    neck: Joint
-    rshoulder: Joint
-    relbow: Joint
-    rwrist: Joint
-    lshoulder: Joint
-    lelbow: Joint
-    lwrist: Joint
-    rhip: Joint
-    rknee: Joint
-    rankle: Joint
-    lhip: Joint
-    lknee: Joint
-    lankle: Joint
-    reye: Joint
-    leye: Joint
-    rear: Joint
-    lear: Joint
+    nose: 'Joint'
+    neck: 'Joint'
+    rshoulder: 'Joint'
+    relbow: 'Joint'
+    rwrist: 'Joint'
+    lshoulder: 'Joint'
+    lelbow: 'Joint'
+    lwrist: 'Joint'
+    rhip: 'Joint'
+    rknee: 'Joint'
+    rankle: 'Joint'
+    lhip: 'Joint'
+    lknee: 'Joint'
+    lankle: 'Joint'
+    reye: 'Joint'
+    leye: 'Joint'
+    rear: 'Joint'
+    lear: 'Joint'
     # JOINT_NAMES = ['nose', 'neck',  'rshoulder', 'relbow', 'rwrist', 'lshoulder', 'lelbow',
     #    'lwrist', 'rhip', 'rknee', 'rankle', 'lhip', 'lknee', 'lankle', 'reye', 'leye', 'rear', 'lear']
 
@@ -61,7 +61,7 @@ class Joint:
 
     # Distance between two joints
     @staticmethod
-    def distance(joint1: Joint, joint2: Joint) -> float:
+    def distance(joint1, joint2) -> float:
         return np.sqrt(np.square(joint1.x - joint2.x) + np.square(joint1.y - joint2.y))
 
     def average(self, joint):
@@ -85,7 +85,7 @@ class Part():
     def get_vector(self):
         return (self.joint2.x - self.joint1.x, self.joint2.y - self.joint1.y)
 
-    def calculate_angle(self, part: Part) -> float:
+    def calculate_angle(self, part) -> float:
         vec1 = np.array(self.get_vector())
         vec2 = np.array(part.get_vector())
 
@@ -106,7 +106,7 @@ class Side(enum.Enum):
 # Helper function to generate part from pose data
 
 
-def generate_parts(frame: PoseData, side: Side):
+def generate_parts(frame, side):
     parts = []
     parts.append(Part(frame.nose, frame.neck))
 

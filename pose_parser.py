@@ -1,10 +1,10 @@
-from __future__ import annotations
+# from __future__ import annotations
 import numpy as np
 from pose import PoseData, Joint, Side
 from typing import List
 
 
-def parse_file(file_path: str, normalize: bool = True) -> List[PoseData]:
+def parse_file(file_path: str, normalize: bool = True):
     frames = np.load(file=file_path)
     pose_sequence = []
     print("Data shape: ", frames.shape)
@@ -19,7 +19,7 @@ def parse_file(file_path: str, normalize: bool = True) -> List[PoseData]:
     return pose_sequence
 
 
-def save_to_file(file_path: str, pose_sequence: List[PoseData]):
+def save_to_file(file_path: str, pose_sequence):
     sequence_arr = []
     for frame in pose_sequence:
         frame_arr = []
@@ -30,7 +30,7 @@ def save_to_file(file_path: str, pose_sequence: List[PoseData]):
     np.save(file_path, sequence_arr)
 
 
-def normalize_pose(pose_sequence: List[PoseData]) -> List[PoseData]:
+def normalize_pose(pose_sequence):
 
     # Normalize pose
     torso_lengths = np.array([Joint.distance(pose.neck, pose.lhip)
@@ -47,7 +47,7 @@ def normalize_pose(pose_sequence: List[PoseData]) -> List[PoseData]:
     return pose_sequence
 
 
-def detect_perspective(sequence: List[PoseData]) -> Side:
+def detect_perspective(sequence):
     right_ct, left_ct = 0, 0
 
     for frame in sequence:
