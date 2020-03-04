@@ -16,9 +16,13 @@ def visualize_vid(path):
     side = detect_perspective(video)
     index = 0
 
-    while(1):
-        cv.imshow('Testing', img)
-        img = np.zeros((600, 800, 3), np.uint8)
+    cap = cv.VideoCapture('videos/bicep_2.mp4')
+    if(cap.isOpened()==False):
+        print("Error")
+    while(cap.isOpened()):
+        ret, frame2 = cap.read()
+    
+        # img = np.zeros((600, 800, 3), np.uint8)
 
         # User input
         k = cv.waitKey(1) & 0xFF
@@ -40,29 +44,31 @@ def visualize_vid(path):
         angle2 = upperarm.calculate_angle(torso)
 
         # Drawing
-        cv.putText(img, f"{path} {index}", (250, 20), cv.FONT_HERSHEY_PLAIN,
+        cv.putText(frame2, f"{path} {index}", (250, 20), cv.FONT_HERSHEY_PLAIN,
                    1, (255, 255, 255), 1)
-        cv.putText(img, f"Angle upperarm forearm: {angle1}", (10, 50), cv.FONT_HERSHEY_PLAIN,
+        cv.putText(frame2, f"Angle upperarm forearm: {angle1}", (10, 50), cv.FONT_HERSHEY_PLAIN,
                    1, (255, 255, 255), 1)
-        cv.putText(img, f"Angle upperarm torso: {angle2}", (10, 80), cv.FONT_HERSHEY_PLAIN,
+        cv.putText(frame2, f"Angle upperarm torso: {angle2}", (10, 80), cv.FONT_HERSHEY_PLAIN,
                    1, (255, 255, 255), 1)
 
         for name, joint in frame:
-            x = int(joint.x) - 200
+            x = int(joint.x)
             y = int(joint.y)
-            cv.circle(img, (x, y), 5, (0, 0, 255), -1)
-            cv.putText(img, name, (x, y-10), cv.FONT_HERSHEY_SIMPLEX,
+            cv.circle(frame2, (x, y), 5, (0, 0, 255), -1)
+            cv.putText(frame2, name, (x, y-10), cv.FONT_HERSHEY_SIMPLEX,
                        0.6, (36, 255, 12), 2)
 
         # Update
         time.sleep(0.08)
+        cv.imshow('Testing', frame2)
         index += 1
         index = index % len(video)
     cv.destroyAllWindows()
 
 
 if __name__ == '__main__':
-    path = "synthesized/bicep/bicep_good_100.npy"
+    # path = "synthesized/bicep/bicep_good_100.npy"
+    path = "dataset/bicep/front_bicep_2.npy"
     # path = "datset/bicep/bicep_good_1.npy"
     # path = "datset/bicep/bicep_bad_1.npy"
     visualize_vid(path)
