@@ -40,6 +40,15 @@ class PoseData:
         for attr, value in self.__dict__.items():
             yield attr, value
 
+    def average(self, data):
+        blankattr = [0] * 18
+        avg_pose = PoseData(*blankattr)
+        for tup1, tup2 in zip(self, data):
+            name = tup1[0]
+            value = tup1[1].average(tup2[1])
+            avg_pose.__setattr__(name, value)
+        return avg_pose
+
 
 @dataclass
 class Joint:
@@ -55,6 +64,18 @@ class Joint:
     @staticmethod
     def distance(joint1: Joint, joint2: Joint) -> float:
         return np.sqrt(np.square(joint1.x - joint2.x) + np.square(joint1.y - joint2.y))
+
+    def average(self, joint):
+        avg = Joint(0, 0, 0)
+        avg.x = (self.x + joint.x)/2.0
+        avg.y = (self.y + joint.y)/2.0
+        avg.confidence = (self.confidence + joint.confidence)/2.0
+
+        # Special case: While averaging if there is a blank data for joint, make average blank
+        if (self.x == 0 or self.y == 0 or joint.x == 0 or joint.y == 0):
+            avg.x = 0
+            avg.y = 0
+        return avg
 
 
 @dataclass
@@ -82,3 +103,13 @@ class Part():
 class Side(enum.Enum):
     left = "Left"
     right = "Right"
+
+
+# if __name__ == '__main__':
+#     a = PoseData(Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(
+#         1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1), Joint(1, 1, 1))
+#     from copy import deepcopy
+#     b = deepcopy(a)
+#     b.nose = Joint(2, 2, 2)
+#     c = a.average(b)
+#     print(c.nose, c.lear)
