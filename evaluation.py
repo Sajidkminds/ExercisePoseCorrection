@@ -24,17 +24,6 @@ def main():
         return False
 
 
-def detect_motion(direction,index, window):
-    
-    current_motion = direction[index]
-    if index>window:
-        left_edge = index-window
-    else:
-        left_edge = 0
-
-    for i in range (left_edge, index):
-        print(index,direction[i-1])
-
 
 def _bicep_curl(video):
     frames = parse_file(video)
@@ -60,12 +49,13 @@ def _bicep_curl(video):
         left_refer_angle = initial_position_left.calculate_angle(left_forearm)
         right_refer_angle = initial_position_right.calculate_angle(right_forearm)
 
+        left_refer_angles.append(left_refer_angle)
+        right_refer_angles.append(right_refer_angle)
+        
         left_angle = left_upperarm.calculate_angle(left_forearm)
         right_angle = right_upperarm.calculate_angle(right_forearm)
 
         
-        left_refer_angles.append(left_refer_angle)
-        right_refer_angles.append(right_refer_angle)
 
         left_upperarm_forearm_angles.append(left_angle)
         right_upperarm_forearm_angles.append(right_angle)
