@@ -47,6 +47,7 @@ def evaluate_bicepcurl(frames: List[pose.PoseData]):
     print('-'*30)
     print('Exercise correct: '+str(correct))
     print(feedback)
+    return feedback
 
 
 if __name__ == "__main__":
