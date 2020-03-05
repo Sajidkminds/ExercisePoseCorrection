@@ -39,7 +39,7 @@ def evaluate_bicepcurl(frames: List[pose.PoseData]):
         correct = False
         feedback += 'Significant rotation in upper arm while curling\n'
 
-    if upperarm_forearm_min > 70.0:
+    if upperarm_forearm_min > 50.0:
         correct = False
         feedback += 'Curling not performed all the way to the top\n'
     if correct:

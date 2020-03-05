@@ -22,12 +22,14 @@ def visualize_vid(path):
 
     i = 0
     initial_frame = i
-    start_angle = 160
+    start_angle = 170
     end_angle = 40
     threshold = 10
     down = False
     up = False
+    down_exited = False
     reps = 0
+    reps_incorrect = 0
     while(cap.isOpened()):
         i = i+1
         ret, frame2 = cap.read()
@@ -40,7 +42,8 @@ def visualize_vid(path):
         k = cv.waitKey(1) & 0xFF
         if k == 27:
             break
-
+        if ret==False:
+            break
         frame = video[index]
 
         # Angle
@@ -56,30 +59,48 @@ def visualize_vid(path):
         angle2 = upperarm.calculate_angle(torso)
         
         #Reps counter
-        
+        #Lower region
         if (start_angle-threshold <= angle1 <= start_angle+threshold):
             down = True
-            if (down and up):
+            if (down and down_exited):
                 reps += 1
-                final_frame = i
                 down = False
-                up = False
-                feedback = evaluate_bicepcurl (video[initial_frame:final_frame])
+                down_exited = False
+                feedback = evaluate_bicepcurl(video[initial_frame:i])
+                initial_frame = i
                 print(feedback)
-                start_frame = i
+            # if (down and up):
+            #     reps += 1
+            #     final_frame = i
+            #     down = False
+            #     up = False
+            #     feedback = evaluate_bicepcurl (video[initial_frame:final_frame])
+            #     print(feedback)
+            #     initial_frame = i
+
+        #Upper region
         if (end_angle-threshold <= angle1 <= end_angle+threshold):
             up = True
+
+        #Downward region exit
+        if (down and angle1<start_angle-threshold):
+            down_exited = True
+
 
         
        
 
         # Drawing
         cv.putText(frame2, f"{path} {index}", (250, 20), cv.FONT_HERSHEY_PLAIN,
-                   1, (255, 255, 255), 1)
+                   2, (255, 255, 255), 1)
         cv.putText(frame2, f"Angle upperarm forearm: {angle1}", (10, 50), cv.FONT_HERSHEY_PLAIN,
-                   1, (255, 255, 255), 1)
+                   2, (255, 255, 255), 1)
         cv.putText(frame2, f"Angle upperarm torso: {angle2}", (10, 80), cv.FONT_HERSHEY_PLAIN,
-                   1, (255, 255, 255), 1)
+                   2, (255, 255, 255), 1)
+        cv.putText(frame2, f"Reps: {reps}", (10, 110), cv.FONT_HERSHEY_PLAIN,
+                   2, (255, 255, 255), 1)
+        cv.putText(frame2, f"Reps incorrect: {reps_incorrect}", (10, 140), cv.FONT_HERSHEY_PLAIN,
+                   2, (0, 0, 0), 1)
 
         for name, joint in frame:
             x = int(joint.x)
@@ -89,7 +110,7 @@ def visualize_vid(path):
                        0.6, (36, 255, 12), 2)
 
         # Update
-        time.sleep(0.08)
+        # time.sleep(0.08)
         cv.imshow('Testing', frame2)
         index += 1
         index = index % len(video)
