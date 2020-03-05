@@ -166,7 +166,7 @@ def visualize_vid(path):
         if (start_angle-threshold <= angle1 <= start_angle+threshold):
             if (down_exited and frames_elapsed > 20):
                 print(angle1)
-                cv.imwrite("frame%d.jpg" % i, image)
+                # cv.imwrite("frame%d.jpg" % i, image)
                 correct, feedback = evaluate_side_bicepcurl(video[initial_frame:i])
                 if (correct):
                     reps += 1
