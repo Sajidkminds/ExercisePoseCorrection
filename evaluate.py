@@ -94,8 +94,8 @@ def evaluate_side_bicepcurl(frames: List[pose.PoseData]):
     upperarm_torso_range = np.max(
         upperarm_torso_angles) - np.min(upperarm_torso_angles)
     upperarm_forearm_min = np.min(upperarm_forearm_angles)
-    print('Upper arm and torso angle range: {}'.format(upperarm_torso_range))
-    print('Upper arm and forearm minimum angle: {}'.format(upperarm_forearm_min))
+    # print('Upper arm and torso angle range: {}'.format(upperarm_torso_range))
+    # print('Upper arm and forearm minimum angle: {}'.format(upperarm_forearm_min))
 
     correct = True
     feedback = ''
@@ -109,9 +109,9 @@ def evaluate_side_bicepcurl(frames: List[pose.PoseData]):
         feedback += 'Curling not performed all the way to the top\n'
     if correct:
         feedback += 'Correctly performed\n'
-    print('-'*30)
-    print('Exercise correct: '+str(correct))
-    print(feedback)
+    # print('-'*30)
+    # print('Exercise correct: '+str(correct))
+    # print(feedback)
     return (correct, feedback)
 
 

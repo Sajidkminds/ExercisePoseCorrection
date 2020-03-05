@@ -126,6 +126,9 @@ def visualize_vid(path):
     down_exited = False # to check whether arm exited down region
     reps = 0 # to count the number of reps in exercise
     reps_incorrect = 0 # to counf the incorrect reps
+    start = False
+    angles = []
+    frames_elapsed = 0
 
     while(cap.isOpened()):
        
@@ -151,42 +154,70 @@ def visualize_vid(path):
             torso = pose.Part(frame.lhip, frame.neck)
         angle1 = upperarm.calculate_angle(forearm)
         angle2 = upperarm.calculate_angle(torso)
+        angles.append(angle1)
         
         #Reps counter
-        #Lower region
+        if (not down_exited and angle1 < start_angle-threshold):
+            print(i)
+            frames_elapsed = 0
+            down_exited = True
+        if (down_exited):
+            frames_elapsed += 1
         if (start_angle-threshold <= angle1 <= start_angle+threshold):
-            down = True
-            if (down and down_exited):
-                # reps += 1
-                down = False
-                down_exited = False
+            if (down_exited and frames_elapsed > 20):
+                print(angle1)
+                cv.imwrite("frame%d.jpg" % i, image)
                 correct, feedback = evaluate_side_bicepcurl(video[initial_frame:i])
                 if (correct):
                     reps += 1
                 else:
                     reps_incorrect += 1
+                # print(initial_frame,i)
+                # print(feedback)
                 initial_frame = i
-                print(reps,feedback)
-            # if (down and up):
-            #     reps += 1
-            #     final_frame = i
-            #     down = False
-            #     up = False
-            #     feedback = evaluate_bicepcurl (video[initial_frame:final_frame])
-            #     print(feedback)
-            #     initial_frame = i
-
-        #Upper region
-        if (end_angle-threshold <= angle1 <= end_angle+threshold):
-            up = True
-
-        #Downward region exit
-        if (down and angle1<start_angle-threshold):
-            down_exited = True
-
-
         
-       
+                down_exited = False
+                frames_elapsed = 0
+
+        # #Lower region
+        # if (start_angle-threshold <= angle1 <= start_angle+threshold):
+        #     down = True
+        #     if (down and down_exited):
+        #         # reps += 1
+        #         down = False
+        #         down_exited = False
+        #         start = True
+        #         correct, feedback = evaluate_side_bicepcurl(video[initial_frame:i])
+        #         if (correct):
+        #             reps += 1
+        #         else:
+        #             reps_incorrect += 1
+        #         # print(initial_frame,i)
+        #         initial_frame = i
+        #         # print(reps,feedback)
+        #     # if (down and up):
+        #     #     reps += 1
+        #     #     final_frame = i
+        #     #     down = False
+        #     #     up = False
+        #     #     feedback = evaluate_bicepcurl (video[initial_frame:final_frame])
+        #     #     print(feedback)
+        #     #     initial_frame = i
+
+        # # #Upper region
+        # # if (end_angle-threshold <= angle1 <= end_angle+threshold):
+        # #     up = True
+
+        # #Downward region exit
+        # if (down and angle1<start_angle-threshold):
+        #     down_exited = True
+        # if (start and down and angle1<start_angle-threshold):
+        #     # print(i)
+        #     print(initial_frame, i)
+        #     start = False
+        #     index_min = np.argmin(angles[initial_frame:i])+initial_frame
+        #     print(initial_frame, index_min)
+        #     initial_frame = index_min
 
         # Drawing
         cv.putText(image, f"{path} {index}", (250, 20), cv.FONT_HERSHEY_PLAIN,
@@ -208,7 +239,7 @@ def visualize_vid(path):
             #            0.6, (36, 255, 12), 2)
 
         # Update
-        # time.sleep(0.08)
+        # time.sleep(0.04)
         i = i+1 
         cv.imshow('Testing', image)
     cv.destroyAllWindows()
@@ -217,7 +248,7 @@ def visualize_vid(path):
 if __name__ == '__main__':
     path = "synthesized/bicep/bicep_good_100.npy"
     # path = "synthesized/bicep/bicep_good_100.npy"
-    path = "dataset/front/front_bicep_8.npy"
+    path = "dataset/front/front_bicep_3.npy"
     # path = "datset/bicep/bicep_good_1.npy"
     # path = "datset/bicep/bicep_bad_1.npy"
-    visualize_front_vid(path)
+    visualize_vid(path)
