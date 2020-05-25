@@ -85,7 +85,7 @@ class Part():
 
     def get_vector(self):
         return (self.joint2.x - self.joint1.x, self.joint2.y - self.joint1.y)
-    
+
     def calculate_angle(self, part: Part) -> float:
         vec1 = np.array(self.get_vector())
         vec2 = np.array(part.get_vector())
@@ -103,6 +103,12 @@ class Part():
 class Side(enum.Enum):
     left = "Left"
     right = "Right"
+
+
+class ExerciseType(enum.Enum):
+    BICEP_CURL_FRONT = 1
+    BICEP_CURL_SIDE = 2
+    SHOULDER_PRESS_SIDE = 3
 
 # Helper function to generate part from pose data
 

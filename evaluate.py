@@ -117,18 +117,115 @@ def evaluate_side_bicepcurl(frames: List[pose.PoseData]):
     return (correct, feedback)
 
 
+def evaluate_side_shoulderpress(frames: List[pose.PoseData]):
+    side = detect_perspective(frames)
+    upperarm_forearm_angles = []
+    upperarm_torso_angles = []
+    back_vectors = []
+    elbow_neck_x = []
+
+    for frame in frames:
+        # IGnore all the 0 confidence frames
+        if (side == pose.Side.right):
+            if (frame.relbow.confidence == 0 or frame.rshoulder.confidence == 0 or frame.rwrist.confidence == 0 or frame.rhip.confidence == 0 or frame.neck.confidence == 0):
+                continue
+        else:
+            if (frame.lelbow.confidence == 0 or frame.lshoulder.confidence == 0 or frame.lwrist.confidence == 0 or frame.lhip.confidence == 0 or frame.neck.confidence == 0):
+                continue
+
+        if (side == pose.Side.right):
+            upperarm = pose.Part(frame.relbow, frame.rshoulder)
+            forearm = pose.Part(frame.relbow, frame.rwrist)
+            torso = pose.Part(frame.rhip, frame.neck)  # Or back
+            # elbow_neck = pose.Part(frame.neck, frame.relbow)
+            back_vectors.append(
+                np.array([frame.neck.x - frame.rhip.x, frame.neck.y - frame.rhip.y]))
+            elbow_neck_x.append(frame.relbow.x - frame.neck.x)
+        else:
+            upperarm = pose.Part(frame.lelbow, frame.lshoulder)
+            forearm = pose.Part(frame.lelbow, frame.lwrist)
+            torso = pose.Part(frame.lhip, frame.neck)
+            # elbow_neck = pose.Part(frame.lelbow, frame.neck)
+            back_vectors.append(
+                np.array([frame.neck.x - frame.lhip.x, frame.neck.y - frame.lhip.y]))
+            elbow_neck_x.append(frame.neck.x - frame.lelbow.x)
+        angle1 = upperarm.calculate_angle(forearm)
+        angle2 = upperarm.calculate_angle(torso)
+        upperarm_forearm_angles.append(angle1)
+        upperarm_torso_angles.append(angle2)
+    ##### Angle cleanup ############
+    upperarm_forearm_angles = np.array(upperarm_forearm_angles)
+    upperarm_forearm_angles = upperarm_forearm_angles[np.logical_not(
+        np.isnan(upperarm_forearm_angles))]
+
+    upperarm_torso_angles = np.array(upperarm_torso_angles)
+    upperarm_torso_angles = upperarm_torso_angles[np.logical_not(
+        np.isnan(upperarm_torso_angles))]
+
+    back_vectors = np.array(back_vectors)
+
+    ### Calculation of required parameters #################
+    max_upperarm_forearm_angle = np.max(upperarm_forearm_angles)
+    back_vector_range = np.max(back_vectors, axis=0) - \
+        np.min(back_vectors, axis=0)
+    elbow_x = np.min(elbow_neck_x)  # Only x axis
+    print(elbow_x)
+
+    correct = True
+    feedback = ""
+    if (max_upperarm_forearm_angle < 175):
+        correct = False
+        feedback += "Not lifted upto the top. \n"
+    if (back_vector_range[0] > 0.16):
+        correct = False
+        feedback += "Back shows significant movement. \n"
+    if (elbow_x < -0.12):
+        correct = False
+        feedback += "Shoulders are not steady/parallel. \n"
+
+    return (correct, feedback)
+
+
+def evaluate_videos(videos: List[List[pose.PoseData]], exerciseType: pose.ExerciseType):
+    for video in videos:
+        if (exerciseType == pose.ExerciseType.BICEP_CURL_FRONT):
+            is_correct, feedback = evaluate_front_bicepcurl(video)
+        elif (exerciseType == pose.ExerciseType.BICEP_CURL_SIDE):
+            is_correct, feedback = evaluate_side_bicepcurl(video)
+        elif (exerciseType == pose.ExerciseType.SHOULDER_PRESS_SIDE):
+            is_correct, feedback = evaluate_side_shoulderpress(video)
+
+        else:
+            print("Invalid exercise")
+            break
+        print(is_correct)
+        print(feedback)
+        print('*' * 50)
+
+
 if __name__ == "__main__":
+    # good_videos = [parse_file(
+    #     "dataset/bicep/bicep_good_" + str(i) + ".npy") for i in range(1, 10)]
+    # bad_videos = [parse_file(
+    #     "dataset/bicep/bicep_bad_" + str(i) + ".npy") for i in range(1, 8)]
+    # print('*'*50)
+    # print('*'*50)
+    # print('Good videos')
+    # for video in good_videos:
+    #     evaluate_side_bicepcurl(video)
+    # print('*'*50)
+    # print('*'*50)
+    # print('Bad videos')
+    # for video in bad_videos:
+    #     evaluate_side_bicepcurl(video)
     good_videos = [parse_file(
-        "dataset/bicep/bicep_good_" + str(i) + ".npy") for i in range(1, 10)]
+        "dataset/shoulderpress/shoulderpressgood" + str(i) + ".npy") for i in range(1, 20)]
     bad_videos = [parse_file(
-        "dataset/bicep/bicep_bad_" + str(i) + ".npy") for i in range(1, 8)]
+        "dataset/shoulderpress/shoulderpressbad" + str(i) + ".npy") for i in range(1, 18)]
+    exerciseType = pose.ExerciseType.SHOULDER_PRESS_SIDE
     print('*'*50)
     print('*'*50)
-    print('Good videos')
-    for video in good_videos:
-        evaluate_side_bicepcurl(video)
+    evaluate_videos(good_videos, exerciseType)
     print('*'*50)
     print('*'*50)
-    print('Bad videos')
-    for video in bad_videos:
-        evaluate_side_bicepcurl(video)
+    evaluate_videos(bad_videos, exerciseType)

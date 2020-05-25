@@ -10,12 +10,15 @@ img = np.zeros((600, 1200, 3), np.uint8)
 # Draw a diagonal blue line with thickness of 5 px
 # cv.line(img, (0, 0), (511, 511), (255, 0, 0), 5)
 # cv.circle(img, (447, 63), 63, (0, 0, 255), -1)
+EXERCISE_FOLDER = "shoulderpress"
+EXERCISE_GOOD_PREFIX = "shoulderpressgood"
+EXERCISE_BAD_PREFIX = "shoulderpressbad"
 NO_OF_GOOD = 9
 NO_OF_BAD = 7
-EXERCISE_NAME = "bicep"
-good_videos = [parse_file(f"synthesized/{EXERCISE_NAME}/{EXERCISE_NAME}_good_" +
+OFFSET_X = 0  # Put 200 for bicep exercise
+good_videos = [parse_file(f"dataset/{EXERCISE_FOLDER}/{EXERCISE_GOOD_PREFIX}" +
                           str(i) + ".npy", False) for i in range(1, NO_OF_GOOD+1)]
-bad_videos = [parse_file(f"synthesized/{EXERCISE_NAME}/{EXERCISE_NAME}_bad_" + str(i) + ".npy", False)
+bad_videos = [parse_file(f"dataset/{EXERCISE_FOLDER}/{EXERCISE_BAD_PREFIX}" + str(i) + ".npy", False)
               for i in range(1, NO_OF_BAD+1)]
 
 is_video_good = True
@@ -97,29 +100,29 @@ while(1):
 
     for name, joint in frame:
         # print(joint.x)
-        x = int(joint.x) - 200
+        x = int(joint.x) - OFFSET_X
         y = int(joint.y)
         cv.circle(img, (x, y), 5, (0, 0, 255), -1)
         cv.putText(img, name, (x, y-10), cv.FONT_HERSHEY_SIMPLEX,
                    0.6, (36, 255, 12), 2)
 
-    rs_re = [frame.rshoulder, frame.relbow] 
+    rs_re = [frame.rshoulder, frame.relbow]
     re_rw = [frame.relbow, frame.rwrist]
 
     lineThickness = 2
-    (x1, y1) = (int(rs_re[0].x)-200, int(rs_re[0].y))
-    (x2, y2) = (int(rs_re[1].x)-200, int(rs_re[1].y))
-    cv.line(img, (x1, y1), (x2, y2), (0,255,0), lineThickness)
+    (x1, y1) = (int(rs_re[0].x)-OFFSET_X, int(rs_re[0].y))
+    (x2, y2) = (int(rs_re[1].x)-OFFSET_X, int(rs_re[1].y))
+    cv.line(img, (x1, y1), (x2, y2), (0, 255, 0), lineThickness)
 
-    (x1, y1) = (int(re_rw[0].x)-200, int(re_rw[0].y))
-    (x2, y2) = (int(re_rw[1].x)-200, int(re_rw[1].y))
-    cv.line(img, (x1, y1), (x2, y2), (0,255,0), lineThickness)
+    (x1, y1) = (int(re_rw[0].x)-OFFSET_X, int(re_rw[0].y))
+    (x2, y2) = (int(re_rw[1].x)-OFFSET_X, int(re_rw[1].y))
+    cv.line(img, (x1, y1), (x2, y2), (0, 255, 0), lineThickness)
 
     vec1 = pose.Part(frame.rshoulder, frame.relbow)
     vec2 = pose.Part(frame.rwrist, frame.relbow)
     angle = vec1.calculate_angle(vec2)
     cv.putText(img, str(angle), (10, 40), cv.FONT_HERSHEY_SIMPLEX,
-                   0.6, (36, 255, 12), 2)
+               0.6, (36, 255, 12), 2)
 
     time.sleep(0.08)
     index += 1
