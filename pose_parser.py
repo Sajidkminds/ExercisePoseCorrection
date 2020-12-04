@@ -4,6 +4,26 @@ from pose import PoseData, Joint, Side
 from typing import List
 
 
+def parse_single_frame(frame: np.array, normalize: bool = True) -> PoseData:
+    if (frame.shape == 18):
+        row = np.array([0, 0, 0])
+        frame = np.vstack((frame, row))
+
+    joints = [Joint(*joint) for joint in frame]  # Unpack and pass x,y,conf
+
+    joints_clipped = joints[:19]
+    pose = (PoseData(*joints_clipped))  # Unpack and pass argument
+
+    if pose.lhip.confidence > 0 and pose.neck.confidence > 0:
+        mean_torso = Joint.distance(pose.neck, pose.lhip)
+    else:
+        mean_torso = Joint.distance(pose.neck, pose.rhip)
+
+    for attr, part in pose:
+        setattr(pose, attr, part/mean_torso)
+    return pose
+
+
 def parse_file(file_path: str, normalize: bool = True) -> List[PoseData]:
     frames = np.load(file=file_path)
     pose_sequence = []
@@ -11,7 +31,7 @@ def parse_file(file_path: str, normalize: bool = True) -> List[PoseData]:
     # Each frame consists of joint data
     for frame in frames:
         if (frame.shape[0] == 18):
-            row = np.array([0,0,0])
+            row = np.array([0, 0, 0])
             frame = np.vstack((frame, row))
         joints = [Joint(*joint) for joint in frame]  # Unpack and pass x,y,conf
         pose_sequence.append(PoseData(*joints))  # Unpack and pass argument

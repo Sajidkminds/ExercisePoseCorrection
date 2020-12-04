@@ -1,86 +1,11 @@
-from __future__ import annotations
 import cv2
-import pose_parser as parser
-import numpy as np
-import time
-import pose
+from openpose_wrapper import OpenPoseWrapper
+from pose_parser import parse_single_frame, detect_perspective
 from evaluate import evaluate_side_bicepcurl
-
-from tkinter import *
-from PIL import Image as IMAGE
-from PIL import ImageTk
-from os import listdir
-
-# Global Constant
-cv_default_font = cv2.FONT_HERSHEY_PLAIN
-font_size = 1
-root_dir = "./demo/data/"
-
-# List all file under root directory
-files = listdir(root_dir)
-active_file = files[0]
-frame_index = 0
-
-# initialize tkinter
-root = Tk()
-
-variable = StringVar(root)
-variable.set(active_file)
-image_frame = Label(root)
-image_frame.grid(row=1, column=0)
-
-# Initializations for debugging variables
-cap = cv2.VideoCapture(f'demo/video/{active_file.split(".")[0]}.mp4')
-if(cap.isOpened() == False):
-    print("Error")
+import pose
+import numpy as np
 
 
-initial_frame = 0  # start of each reps
-start_angle = 160  # intial position defined
-end_angle = 40  # final position of arm
-threshold = 10
-down = False  # to check whether the arm is in down region
-down_exited = False  # to check whether arm exited down region
-reps = 0  # to count the number of reps in exercise
-reps_incorrect = 0  # to counf the incorrect reps
-frames_elapsed = 0
-feedback = ""
-
-
-# file change callback
-
-
-def on_file_change(*args):
-    global video, side, active_file, cap, initial_frame, start_angle, end_angle, threshold, down, down_exited, frame_index
-    global reps, reps_incorrect, frames_elapsed, feedback, frame_index
-    active_file = variable.get()
-    video = parser.parse_file(root_dir + '/' + active_file, False)
-    cap.release()
-    cap = cv2.VideoCapture(f'demo/video/{active_file.split(".")[0]}.mp4')
-    if(cap.isOpened() == False):
-        print("Error")
-    initial_frame = 0  # start of each reps
-    start_angle = 160  # intial position defined
-    end_angle = 40  # final position of arm
-    threshold = 10
-    down = False  # to check whether the arm is in down region
-    down_exited = False  # to check whether arm exited down region
-    reps = 0  # to count the number of reps in exercise
-    reps_incorrect = 0  # to counf the incorrect reps
-    frames_elapsed = 0
-    feedback = ""
-    frame_index = 0
-    side = parser.detect_perspective(video)
-    root.title(active_file)
-    print(active_file)
-
-
-# Attach callback
-variable.trace("w", on_file_change)
-on_file_change(())
-
-
-###################################################################
 
 def evaluate_angle_per_frame(frame, side):
     # Angles to calculate
@@ -105,22 +30,29 @@ def evaluate_angle_per_frame(frame, side):
     frame_out["a2"] = angle2
     return frame_out
 
-#############################################################
 
+path = '\\demo\\video\\bicep_side_1.mp4'
+wrapper = OpenPoseWrapper(path)
+initial_frame = 0  # start of each reps
+start_angle = 160  # intial position defined
+end_angle = 40  # final position of arm
+threshold = 10
+down = False  # to check whether the arm is in down region
+down_exited = False  # to check whether arm exited down region
+reps = 0  # to count the number of reps in exercise
+reps_incorrect = 0  # to counf the incorrect reps
+frames_elapsed = 0
+feedback = ""
+frame_index = 0
+cv_default_font = cv2.FONT_HERSHEY_PLAIN
+font_size = 1
+video = []
 
-def debugVideo():
-    # Main call every frame
-    global start_angle, end_angle, threshold, frame_index, down_exited, frames_elapsed, initial_frame, reps, reps_incorrect
-    global is_playing, feedback, delay
-    color = (0, 255, 0)
-    ret, img = cap.read()
-    if ret == False:
-        return
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-    # Get necessary elements
-    frame = video[frame_index]
-    # Evaluate output for frame
+while(True):
+    keypoint, img = wrapper.calculate_frame()
+    frame = parse_single_frame(keypoint[0])
+    video.append(frame)
+    side = detect_perspective([frame])
     output = evaluate_angle_per_frame(frame, side)
     angle1 = output["a1"]
     angle2 = output["a2"]
@@ -133,6 +65,7 @@ def debugVideo():
         frames_elapsed += 1
     if (start_angle-threshold <= angle1 <= start_angle+threshold):
         if (down_exited and frames_elapsed > 20):
+            # 1 rep completed
             print(angle1)
             # cv.imwrite("frame%d.jpg" % i, image)
             correct, feedback = evaluate_side_bicepcurl(
@@ -142,7 +75,7 @@ def debugVideo():
             else:
                 reps_incorrect += 1
             # print(initial_frame,i)
-            # print(feedback)
+            print(feedback)
             initial_frame = frame_index
 
             down_exited = False
@@ -181,6 +114,7 @@ def debugVideo():
 
     # Draw debug info
     # Parts
+    color = (0, 255, 0)
     for part in parts:
         joint1 = part.joint1
         joint2 = part.joint2
@@ -225,48 +159,13 @@ def debugVideo():
 
     ###########Updates###############################################
     # Display current frame
-    frame_index = (frame_index + 1) % len(video)
+    frame_index = (frame_index + 1)
 
-    final_image = ImageTk.PhotoImage(IMAGE.fromarray(img))
-    image_frame.configure(image=final_image)
-    image_frame.image = final_image
-
-    # root.after(10, debugVideo)
-    if (is_playing):
-        root.after(delay, debugVideo)
-    else:
-        root.after_cancel(debugVideo)
-
-#####################################################################################
+    # print(keypoint)
+    cv2.imshow("OpenCV", img)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 
 
-##########Remaining GUI controls########################################
-def play_callback(root):
-    global is_playing
-    is_playing = not is_playing
-    root.after(10, debugVideo)
-
-
-def set_delay(val):
-    global delay
-    delay = val
-
-
-is_playing = True
-delay = 10
-btn = Button(root, text='Play/Pause',
-             command=lambda: play_callback(root))
-btn.grid(row=0, column=0, padx=10, pady=10, sticky="W")
-
-file_selector = OptionMenu(root, variable, *files)
-file_selector.grid(row=0, column=0, padx=10, pady=10, sticky="E")
-
-scale = Scale(orient='horizontal', from_=1,
-              to=100, command=set_delay)
-scale.grid(row=0, column=0, padx=1, pady=1, sticky="N")
-scale.set(delay)
-
-
-# Main call
-root.after(delay, debugVideo)
-root.mainloop()
+wrapper.release()
+cv2.destroyAllWindows()
