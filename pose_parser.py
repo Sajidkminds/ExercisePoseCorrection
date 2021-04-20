@@ -1,7 +1,27 @@
-from __future__ import annotations
+
 import numpy as np
 from pose import PoseData, Joint, Side
 from typing import List
+
+
+def parse_single_frame(frame: np.array, normalize: bool = True) -> PoseData:
+    if (frame.shape == 18):
+        row = np.array([0, 0, 0])
+        frame = np.vstack((frame, row))
+
+    joints = [Joint(*joint) for joint in frame]  # Unpack and pass x,y,conf
+
+    joints_clipped = joints[:19]
+    pose = (PoseData(*joints_clipped))  # Unpack and pass argument
+
+    if pose.lhip.confidence > 0 and pose.neck.confidence > 0:
+        mean_torso = Joint.distance(pose.neck, pose.lhip)
+    else:
+        mean_torso = Joint.distance(pose.neck, pose.rhip)
+
+    for attr, part in pose:
+        setattr(pose, attr, part/mean_torso)
+    return pose
 
 
 def parse_file(file_path: str, normalize: bool = True) -> List[PoseData]:
@@ -10,6 +30,9 @@ def parse_file(file_path: str, normalize: bool = True) -> List[PoseData]:
     print("Data shape: ", frames.shape)
     # Each frame consists of joint data
     for frame in frames:
+        if (frame.shape[0] == 18):
+            row = np.array([0, 0, 0])
+            frame = np.vstack((frame, row))
         joints = [Joint(*joint) for joint in frame]  # Unpack and pass x,y,conf
         pose_sequence.append(PoseData(*joints))  # Unpack and pass argument
 
@@ -17,6 +40,17 @@ def parse_file(file_path: str, normalize: bool = True) -> List[PoseData]:
         pose_sequence = normalize_pose(pose_sequence)
 
     return pose_sequence
+
+
+def save_to_file(file_path: str, pose_sequence: List[PoseData]):
+    sequence_arr = []
+    for frame in pose_sequence:
+        frame_arr = []
+        for name, joint in frame:
+            frame_arr.append([joint.x, joint.y, joint.confidence])
+        sequence_arr.append(frame_arr)
+    sequence_arr = np.array(sequence_arr)
+    np.save(file_path, sequence_arr)
 
 
 def normalize_pose(pose_sequence: List[PoseData]) -> List[PoseData]:
