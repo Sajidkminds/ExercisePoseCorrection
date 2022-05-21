@@ -12,7 +12,7 @@ from PIL import ImageTk
 from os import listdir
 
 # Global Constant
-cv_default_font = cv2.FONT_HERSHEY_PLAIN
+cv_default_font = cv2.FONT_HERSHEY_DUPLEX
 font_size = 1
 root_dir = "./demo/data/"
 
@@ -203,10 +203,10 @@ def debugVideo():
 
     # Display current frame information
     textcolor = (255, 255, 0)
-    cv2.rectangle(img, (0, 0), (310, 160), (0, 0, 0), -1)
+    cv2.rectangle(img, (0, 0), (450, 160), (0, 0, 0), -1)
     cv2.putText(img, f"Frame: {frame_index}", (10, 20),
                 cv_default_font, 1, textcolor, font_size)
-    cv2.putText(img, f"Side: {side}", (10, 40),
+    cv2.putText(img, f"POV: {side}", (10, 40),
                 cv_default_font, 1, textcolor, font_size)
     cv2.putText(img, f"Angle upper and forearm: {round(output['a1'],2)}", (
         10, 60), cv_default_font, 1, textcolor, font_size)
@@ -214,10 +214,10 @@ def debugVideo():
         10, 80), cv_default_font, 1, textcolor, font_size)
     # cv2.putText(img, f"Correct: {output['status']}", (10, 100), cv_default_font, 1, (0,0,0), font_size)
     textcolor = (0, 255, 0)
-    cv2.putText(img, f"Reps correct: {reps}", (10, 110), cv_default_font,
+    cv2.putText(img, f"Correct Reps: {reps}", (10, 110), cv_default_font,
                 1, textcolor, 1)
     textcolor = (255, 0, 0)
-    cv2.putText(img, f"Reps incorrect: {reps_incorrect}", (10, 130), cv_default_font,
+    cv2.putText(img, f"Incorrect Reps: {reps_incorrect}", (10, 130), cv_default_font,
                 1, textcolor, 1)
     textcolor = (255, 255, 255)
     cv2.putText(img, f"{feedback}", (10, 150), cv_default_font,
